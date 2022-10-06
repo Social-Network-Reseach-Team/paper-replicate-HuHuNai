@@ -90,7 +90,7 @@ get_star_by_M<-function(M){
   x=0.3
   y=0.3
   time_start = Sys.time()
-  temp<-replicator_dynamics_xy(y,x,M,beta1=2,beta2=1.1,N=50,d=4,c=1,l=0.5)
+  temp<-replicator_dynamics_xy(y,x,M,beta1=1.5,beta2=1.1,N=50,d=4,c=1,l=0.5)
   x_flag = FALSE
   y_flag = FALSE
 
@@ -112,32 +112,25 @@ get_star_by_M<-function(M){
       y_flag = TRUE
       y=0
     }
-    temp <- replicator_dynamics_xy(y,x,M,beta1=2,beta2=1.1,N=50,d=4,c=1,l=0.5)
+    temp <- replicator_dynamics_xy(y,x,M,beta1=1.5,beta2=1.1,N=50,d=4,c=1,l=0.5)
     x. = temp$x.
     y. = temp$y.
-    if(!x_flag){
-      if (abs(x.)>0.01){
-        if (abs(x.)>0.2){
-          x. = sign(x.)*0.05
-        }
-        x = x+x.
-      }
-      else{
-        x_flag = TRUE
-      }
+    if (abs(x.)>0.001 || abs(y.)>0.001){
+      x = x+sign(x.)*0.002
+      y = y+sign(y.)*0.002
+          # if (abs(x.)>0.2){
+          #   x. = sign(x.)*0.001
+          # }
+          # x = x+x.
+          # if (abs(y.)>0.2){
+          #   y. = sign(y.)*0.001
+          # }
+          # y = y+y.
     }
-    if(!y_flag){
-      if (abs(y.)>0.01){
-        if (abs(y.)>0.2){
-          y. = sign(y.)*0.05
-        }
-        y = y+y.
-      }
-      else{
-        y_flag = TRUE
-      }
+    else{
+      break
     }
-    if (Sys.time()-time_start>5){
+    if (Sys.time()-time_start>10){
        cat(M,"time out\n")
     }
   }
@@ -145,19 +138,182 @@ get_star_by_M<-function(M){
   return(data.frame(xstar=x,ystar=y,M=M))
 }
 
-df = data.frame()
-range = 50:500
-for (M in range){
-  df=rbind(df,get_star_by_M(M))
+get_star_by_M_alt<-function(M){
+  x=0.3
+  y=0.3
+  time_start = Sys.time()
+  temp<-replicator_dynamics_xy_alt(y,x,M,beta1=1.5,beta2=1.1,N=50,d=4,c=1,l=0.5)
+  x_flag = FALSE
+  y_flag = FALSE
+  
+  
+  while(!(x_flag & y_flag)){
+    if (x>1){
+      x_flag = TRUE
+      x=sign(x)
+    }
+    if (x<0){
+      x_flag = TRUE
+      x=0
+    }
+    if (abs(y)>=1){
+      y_flag = TRUE
+      y=sign(y)
+    }
+    if (y<0){
+      y_flag = TRUE
+      y=0
+    }
+    temp <- replicator_dynamics_xy_alt(y,x,M,beta1=1.5,beta2=1.1,N=50,d=4,c=1,l=0.5)
+    x. = temp$x.
+    y. = temp$y.
+    if (abs(x.)>0.001 || abs(y.)>0.001){
+      if (abs(x.)>0.2){
+        x. = sign(x.)*0.001
+      }
+      x = x+x.
+      if (abs(y.)>0.2){
+        y. = sign(y.)*0.001
+      }
+      y = y+y.
+    }
+    else{
+      break
+    }
+    if (Sys.time()-time_start>10){
+      cat(M,"time out\n")
+    }
+  }
+  cat(M," done",x,y,"\n")
+  return(data.frame(xstar=x,ystar=y,M=M))
 }
 
-mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(df$labelll)))
-fig <- plot_ly(df,x = ~ystar, y=~xstar, z=~M,type = "scatter3d",size = 1)
-fig
 
-get_star_by_M(100)
+get_star_by_N<-function(M){
+  x=0.3
+  y=0.3
+  M=100
+  time_start = Sys.time()
+  temp<-replicator_dynamics_xy(y,x,M=M,beta1=1.5,beta2=1.1,N=N,d=4,c=1,l=0.5)
+  x_flag = FALSE
+  y_flag = FALSE
+  
+  
+  while(!(x_flag & y_flag)){
+    if (x>1){
+      x_flag = TRUE
+      x=sign(x)
+    }
+    if (x<0){
+      x_flag = TRUE
+      x=0
+    }
+    if (abs(y)>=1){
+      y_flag = TRUE
+      y=sign(y)
+    }
+    if (y<0){
+      y_flag = TRUE
+      y=0
+    }
+    temp <- replicator_dynamics_xy(y,x,M=M,beta1=1.5,beta2=1.1,N=N,d=4,c=1,l=0.5)
+    x. = temp$x.
+    y. = temp$y.
+    if (abs(x.)>0.001 || abs(y.)>0.001){
+      if (abs(x.)>0.2){
+        x. = sign(x.)*0.001
+      }
+      x = x+x.
+      if (abs(y.)>0.2){
+        y. = sign(y.)*0.001
+      }
+      y = y+y.
+    }
+    else{
+      break
+    }
+    if (Sys.time()-time_start>10){
+      cat(M,"time out\n")
+    }
+  }
+  cat(M," done",x,y,"\n")
+  return(data.frame(xstar=x,ystar=y,N=N))
+}
 
+get_star_by_N_alt<-function(M){
+  x=0.3
+  y=0.3
+  M=100
+  time_start = Sys.time()
+  temp<-replicator_dynamics_xy_alt(y,x,M=M,beta1=1.5,beta2=1.1,N=N,d=4,c=1,l=0.5)
+  x_flag = FALSE
+  y_flag = FALSE
+  
+  
+  while(!(x_flag & y_flag)){
+    if (x>1){
+      x_flag = TRUE
+      x=sign(x)
+    }
+    if (x<0){
+      x_flag = TRUE
+      x=0
+    }
+    if (abs(y)>=1){
+      y_flag = TRUE
+      y=sign(y)
+    }
+    if (y<0){
+      y_flag = TRUE
+      y=0
+    }
+    temp <- replicator_dynamics_xy_alt(y,x,M=M,beta1=1.5,beta2=1.1,N=N,d=4,c=1,l=0.5)
+    x. = temp$x.
+    y. = temp$y.
+    if (abs(x.)>0.001 || abs(y.)>0.001){
+      if (abs(x.)>0.2){
+        x. = sign(x.)*0.001
+      }
+      x = x+x.
+      if (abs(y.)>0.2){
+        y. = sign(y.)*0.001
+      }
+      y = y+y.
+    }
+    else{
+      break
+    }
+    if (Sys.time()-time_start>10){
+      cat(M,"time out\n")
+    }
+  }
+  cat(M," done",x,y,"\n")
+  return(data.frame(xstar=x,ystar=y,N=N))
+}
 
+# df = data.frame()
+# range = seq(50,500,10)
+# for (M in range){
+#   df=rbind(df,get_star_by_M(M))
+# }
+# df
+# 
+# df=df %>% mutate(zstar=1-xstar-ystar)
+# 
+# fig <- plot_ly(df, x = ~M, y = ~xstar, name = 'x*', type = 'scatter', mode = 'lines') 
+# fig <- fig %>% add_trace(y = ~ystar, name = 'y*', mode = 'lines') 
+# fig <- fig %>% add_trace(y = ~zstar, name = 'z*', mode = 'lines')
+# 
+# fig
+# mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(length(unique(df$labelll)))
+# fig <- plot_ly(df,x = ~ystar, y=~xstar, z=~M,type = "scatter3d",size = 1)
+# fig
+
+# get_star_by_M(77)
+# 
+# replicator_dynamics_xy(0.228507,0.2911438,77,beta1=1.5,beta2=1.1,N=50,d=4,c=1,l=0.5)
+# 
+# get_star_by_M(100)
 
 
 
