@@ -1,18 +1,20 @@
+library(BB)
+
+
 get_star_by_M = function(M){
-  helper = function(xy){
-    M<-M
+    helper = function(xy){
+    x=xy[1]
+    y=xy[2]
     beta1<-1.5
     beta2<-1.1
     N<-50
     d<-4
     c<-1
     l<-0.5
-    x = xy[1]
-    y = xy[2]
     l=0.5
     Pc<-0
     Pd<-0
-    Pl<-0 
+    Pl<-0
     for (Nd in 0:(N-1)){ 
       for (Nl in 0:(N-1-Nd)){
         Nc <- N-1-Nd-Nl
@@ -30,11 +32,26 @@ get_star_by_M = function(M){
     s.<-(1-x-y)*(Pc-R_)
     return (c(x.,y.))
   }
+  all =data.frame()
+  for (x in seq(0.1,0.9,0.1)){
+    for (y in seq(0.1,round(1-x,1),0.1)){
+        out = dfsane(c(x,y),helper,control=list(trace=FALSE))
+        # 
+        if (out$convergence==0  &  all(round(out$par,2)<1) & any(round(out$par,2)>0) & sum(out$par)<1){
+                  out = round(out$par,4)
+        all=rbind(all,data.frame(x=out[1],y=out[2]))
+        }
+    }
+  }
+  out = unique.data.frame(all)
+  if (length(out)>0){
+    rownames(out) = 1:nrow(out)
+  }
   
-
-  out = dfsane(c(0.3,0.3),helper)$par
-  return(data.frame(xstar=out[1],ystar=out[2],M=M))
+  return(out)
 }
+
+
 
 get_star_by_M_with_beta = function(M){
   helper_with_beta = function(xy){
